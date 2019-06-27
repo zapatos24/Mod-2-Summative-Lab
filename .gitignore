@@ -102,3 +102,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# API ID's and Keys
+/dark_sky_api_remy.py
