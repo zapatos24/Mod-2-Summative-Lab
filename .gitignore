@@ -105,3 +105,6 @@ venv.bak/
 
 # API ID's and Keys
 /dark_sky_api_remy.py
+
+#Special Mac files
+.DS_Store
