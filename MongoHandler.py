@@ -2,7 +2,7 @@ import pymongo
 import pandas as pd
 
 
-class MongoHandler:
+class MongoHandler():
     def __init__(self, mongoDBadd):
         self.client = pymongo.MongoClient(mongoDBadd)
 
@@ -22,26 +22,32 @@ class MongoHandler:
         print('Collection '+collName+' added')
         return collection
 
+    # Returns the working tree for the passed collection name
+    def enter_collection(self, dbName, collName):
+        return self.make_collection(self.make_db(dbName), collName)
+
     # Clears the collection passed of all data
     def clear_collection(self, db, collName):
         self.client[db][collName].delete_many({})
         print('Collection cleared')
 
-    # Fills the collection with the dataframe passed in
-    def fill_db(self, db, collName, DataFrame):
+    # Create dictionary for entry into MongoDB from Pandas DataFrame
+    def make_dict_from_df(DataFrame, rownum):
+        team_to_add = {'name': DataFrame.index[rownum],
+                       '2011_goals': int(DataFrame.iloc[rownum].tot_home_goals),
+                       '2011_wins': int(DataFrame.iloc[rownum].tot_home_win),
+                       '2011_loss': int(DataFrame.iloc[rownum].tot_home_loss),
+                       '2011_draw': int(DataFrame.iloc[rownum].tot_home_draw),
+                       '2011_graph': DataFrame.iloc[rownum].graph
+                       }
+        return team_to_add
+
+    # Create list of dictionaries for entry into database
+    def list_of_dicts(DataFrame):
         list_of_teams = []
         for i in range(len(DataFrame)):
-            team_to_add = {'name': DataFrame.index[i],
-                           '2011_goals': int(DataFrame.iloc[i].tot_home_goals),
-                           '2011_wins': int(DataFrame.iloc[i].tot_home_win),
-                           '2011_loss': int(DataFrame.iloc[i].tot_home_loss),
-                           '2011_draw': int(DataFrame.iloc[i].tot_home_draw),
-                           '2011_graph': DataFrame.iloc[i].graph
-                           }
+            team_to_add = make_dict_from_df(DataFrame, i)
             list_of_teams.append(team_to_add)
-
-        results = self.client[db][collName].insert_many(list_of_teams)
-        return results.inserted_ids
 
     # Query the database, makes sure no one tries to call the graph
     # (because .ipynb hates it)
