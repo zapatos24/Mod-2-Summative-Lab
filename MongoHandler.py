@@ -19,17 +19,17 @@ class MongoHandler():
     # Create a new collection on the server
     def make_collection(self, db, collName):
         collection = self.client[db][collName]
-        print('Collection '+collName+' added')
+        print('Collection '+collName+' added in '+db+' database')
         return collection
 
     # Returns the working tree for the passed collection name
-    def enter_collection(self, dbName, collName):
-        return self.make_collection(self.make_db(dbName), collName)
+    def enter_collection(self, db, collName):
+        return self.client[db][collName]
 
     # Clears the collection passed of all data
     def clear_collection(self, db, collName):
         self.client[db][collName].delete_many({})
-        print('Collection cleared')
+        print('Collection '+collName+' cleared')
 
     # Create dictionary for entry into MongoDB from Pandas DataFrame
     def make_dict_from_df(DataFrame, rownum):
@@ -46,12 +46,13 @@ class MongoHandler():
     def list_of_dicts(DataFrame):
         list_of_teams = []
         for i in range(len(DataFrame)):
-            team_to_add = make_dict_from_df(DataFrame, i)
+            team_to_add = MongoHandler.make_dict_from_df(DataFrame, i)
             list_of_teams.append(team_to_add)
+        return list_of_teams
 
     # Query the database, makes sure no one tries to call the graph
     # (because .ipynb hates it)
-    def query_db(self, db, collName, wdict={}, sdict={'graph': 0}):
+    def query_db(self, db, collName, wdict={'graph': 0}, sdict={'graph': 0}):
         if sdict['graph'] != 0:
             print('Please do not query the graph, it breaks things in .ipynb')
         else:
