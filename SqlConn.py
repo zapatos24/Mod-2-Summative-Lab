@@ -8,12 +8,14 @@ class SqlConn:
             self.conn = sqlite3.connect(database_name)
             self.c = self.conn.cursor
         else:
-            print(Database Name must be a string)
+            print('Database Name must be a string')
 
-    def matches_df(self):
+    def matches_df(self, season):
         self.c.execute("""SELECT *
                           FROM Matches
-                          WHERE Season IN (2011) AND Div IN ('D1','D2')
+                          WHERE Season IN """ +
+                       str(season) +
+                       """ AND Div IN ('D1','D2')
                           ORDER BY Date""")
 
         df = pd.DataFrame(self.c.fetchall())
