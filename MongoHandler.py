@@ -16,15 +16,11 @@ class MongoHandler():
         print('Database '+dbName+' added')
         return db
 
-    # Create a new collection on the server
+    # Create or enter a collection in a database on the server
     def make_collection(self, db, collName):
         collection = self.client[db][collName]
-        print('Collection '+collName+' added in '+db+' database')
+        print('Now in the '+collName+' collection in the '+db+' database')
         return collection
-
-    # Returns the working tree for the passed collection name
-    def enter_collection(self, db, collName):
-        return self.client[db][collName]
 
     # Clears the collection passed of all data
     def clear_collection(self, db, collName):
@@ -33,19 +29,16 @@ class MongoHandler():
 
     # Create dictionary for entry into MongoDB from Pandas DataFrame
     def make_dict_from_df(DataFrame, rownum):
-        season = str(int(DataFrame.Season.iloc[rownum]))
-        team_to_add = {'name': DataFrame.index[rownum],
-                       season+'_goals': int(DataFrame.iloc[rownum].GoalsScored),
-                       season+'_wins': int(DataFrame.iloc[rownum].Wins),
-                       season+'_losses': int(DataFrame.iloc[rownum].Losses),
-                       season+'_draws': int(DataFrame.iloc[rownum].Draws),
-                       season+'_raingames': int(DataFrame.iloc[rownum].RainGames),
-                       season+'_nonraingames': int(DataFrame.iloc[rownum].NonRainWins),
-                       season+'_rainwin%': float(DataFrame.iloc[rownum]['RainWin%']),
-                       season+'_nonrainwin%': float(DataFrame.iloc[rownum]['NonRainWin%']),
-                       season+'_change%': float(DataFrame.iloc[rownum]['%ChangeWinWithRain']),
-                       'graph': DataFrame.iloc[rownum].graph
-                       }
+        team_to_add = {'name': DataFrame.index[rownum]}
+        for col in DataFrame.columns:
+            if '%' in col:
+                value = round(float(DataFrame.iloc[rownum][col]), 4)
+            elif type(DataFrame.iloc[rownum][col]) == list:
+                continue
+            else:
+                value = int(DataFrame.iloc[rownum][col])
+            team_to_add.update({col: value})
+        team_to_add.update({'graph': DataFrame.iloc[rownum]['graph']})
         return team_to_add
 
     # Create list of dictionaries for entry into database
