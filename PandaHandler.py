@@ -7,7 +7,8 @@ class PandaHandler:
     # team
     def tot_home_goals_scored(DataFrame):
         DataFrame['tot_home_goals'] = DataFrame.HomeTeam.apply(
-            lambda team: DataFrame.groupby('HomeTeam')['FTHG'].sum().loc[team])
+            lambda team: DataFrame.groupby('HomeTeam')['FTHG'].sum().loc[team] +
+            DataFrame.groupby('AwayTeam')['FTAG'].sum().loc[team])
         return DataFrame
 
     # Counts the total number of wins, losses, or draws for each team in the
@@ -65,7 +66,8 @@ class PandaHandler:
     def rain_results(matchesDF, rainDF):
         matchesDF = matchesDF.merge(rainDF, on='Date', how='left')
         teams = PandaHandler.match_results(matchesDF)
-        num_games = teams.iloc[0].Wins + teams.iloc[0].Losses + teams.iloc[0].Draws
+        num_games = teams.iloc[0].Wins + \
+            teams.iloc[0].Losses + teams.iloc[0].Draws
         print('Total Number of Games: ' + str(num_games))
         teams['RainGames'] = matchesDF.groupby(
             'HomeTeam').Rain.sum() + matchesDF.groupby('AwayTeam').Rain.sum()
