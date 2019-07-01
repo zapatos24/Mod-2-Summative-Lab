@@ -45,8 +45,38 @@ class PandaHandler:
         DataFrame['tot_home_draw'] = DataFrame.HomeTeam.apply(
             lambda team: PandaHandler.count_games(DataFrame, 'Draw')[team])
 
-        DataFrame = DataFrame.drop(['HomeWin', 'AwayWin', 'HomeLoss',
-                                    'AwayLoss', 'HomeDraw', 'AwayDraw'],
-                                   axis=1)
-
         return DataFrame
+
+    # Get back a pretty version of DataFrame
+    def match_results(DataFrame):
+        df_goals_wins = DataFrame.groupby('HomeTeam')[['Season',
+                                                       'tot_home_goals',
+                                                       'tot_home_win',
+                                                       'tot_home_loss',
+                                                       'tot_home_draw']
+                                                      ].first()
+        df_goals_wins.index.rename('Team', inplace=True)
+        df_goals_wins.columns = ['Season', 'GoalsScored',
+                                 'Wins', 'Losses', 'Draws']
+        return df_goals_wins
+
+    # Returns a new DataFrame with rain information added
+    def rain_results(matchesDF, rainDF):
+        matchesDF = matchesDF.merge(rainDF, on='Date', how='left')
+        teams = PandaHandler.match_results(matchesDF)
+        teams['RainGames'] = matchesDF.groupby(
+            'HomeTeam').Rain.sum() + matchesDF.groupby('AwayTeam').Rain.sum()
+
+        teams['RainWins'] = matchesDF[matchesDF.Rain == 1].groupby('HomeTeam').HomeWin.sum() + \
+            matchesDF[matchesDF.Rain == 1].groupby('AwayTeam').AwayWin.sum()
+
+        teams['NonRainWins'] = teams.Wins - teams.RainWins
+
+        teams['RainWin%'] = teams.RainWins/teams.RainGames
+
+        teams['NonRainWin%'] = teams.NonRainWins/(-teams.RainGames)
+
+        teams['%ChangeWinWithRain'] = (
+            teams['RainWin%']-teams['NonRainWin%']) / teams['NonRainWin%']
+
+        return teams
