@@ -6,7 +6,7 @@ import json
 import requests
 import pandas as pd
 
-
+#Season_start_date and season_end_date can take any standard format as strings.
 class RainData:
     def __init__(self, season_start_date, season_end_date):
         self.start_date = parse(season_start_date)
@@ -29,6 +29,8 @@ class RainData:
 
         # unnest dictionaries
         daily_data = [data[i]['daily']['data'][0] for i in range(len(data))]
+        
+        #Create a data frame with date and rain dummy variable columns
         precipType = []
         for i in range(len(daily_data)):
             if 'precipType' in daily_data[i].keys():
