@@ -11,7 +11,8 @@ class PandaHandler:
         return DataFrame
 
     # Counts the total number of wins, losses, or draws for each team in the
-    # DataFrame passed in
+    # DataFrame passed in by creating dummy variable columns and using groupby
+    # aggregate functions
     def count_games(DataFrame, game_end):
         if game_end == 'Win':
             DataFrame['HomeWin'] = DataFrame.FTR.map({'H': 1, 'A': 0, 'D': 0})

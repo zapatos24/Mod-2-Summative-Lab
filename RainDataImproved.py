@@ -12,12 +12,14 @@ geolocator = Nominatim(user_agent="Je/Remy")
 tf = TimezoneFinder(in_memory=True)
 TimezoneFinder.using_numba()
 
-
+#Season_start_date and season_end_date can take any standard format as strings.
 class RainData:
 
     def __init__(self, season_start_date, season_end_date,
                  location='Berlin', time_24hours='15:00'):
+        #create geopy object of location in order to access longitude and latitude
         self.location = geolocator.geocode(location, language='en-US')
+        #find location's timezone based on longitude and latitude
         self.timezone = tf.timezone_at(
             lng=self.location.longitude, lat=self.location.latitude)
         self.start_date = parse(season_start_date)
@@ -26,8 +28,10 @@ class RainData:
                            parse(season_start_date)).days
         self.dates = [str(self.start_date + datetime.timedelta(i)).split()[0]
                       for i in range(self.date_range)]
+        #find local time offsets from UTC
         offsets = [pytz.timezone(self.timezone).localize(
             parse(i)).strftime('%z') for i in self.dates]
+        #format times and UTC offsets as required by Dark Sky api
         times = ['T' + str(time_24hours) + ':00' + offset[:3] +
                  ':' + offset[3:] for offset in offsets]
         self.datetimes = [self.dates[i] + times[i]
@@ -46,6 +50,8 @@ class RainData:
 
         # unnest dictionaries
         daily_data = [data[i]['daily']['data'][0] for i in range(len(data))]
+        
+        #Create a data frame with date and rain dummy variable columns
         precipType = []
         for i in range(len(daily_data)):
             if 'precipType' in daily_data[i].keys():
