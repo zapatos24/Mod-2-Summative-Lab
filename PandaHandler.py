@@ -47,7 +47,8 @@ class PandaHandler:
 
         return DataFrame
 
-    # Get back a pretty version of DataFrame
+    # Get back a pretty version of DataFrame with only necessary information
+    # before rain data added
     def match_results(DataFrame):
         df_goals_wins = DataFrame.groupby('HomeTeam')[['Season',
                                                        'tot_home_goals',
@@ -64,6 +65,8 @@ class PandaHandler:
     def rain_results(matchesDF, rainDF):
         matchesDF = matchesDF.merge(rainDF, on='Date', how='left')
         teams = PandaHandler.match_results(matchesDF)
+        num_games = teams.iloc[0].Wins + teams.iloc[0].Losses + teams.iloc[0].Draws
+        print('Total Number of Games: ' + str(num_games))
         teams['RainGames'] = matchesDF.groupby(
             'HomeTeam').Rain.sum() + matchesDF.groupby('AwayTeam').Rain.sum()
 
@@ -74,7 +77,7 @@ class PandaHandler:
 
         teams['RainWin%'] = teams.RainWins/teams.RainGames
 
-        teams['NonRainWin%'] = teams.NonRainWins/(-teams.RainGames)
+        teams['NonRainWin%'] = teams.NonRainWins/(num_games-teams.RainGames)
 
         teams['%ChangeWinWithRain'] = (
             teams['RainWin%']-teams['NonRainWin%']) / teams['NonRainWin%']
