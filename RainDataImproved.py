@@ -13,6 +13,7 @@ tf = TimezoneFinder(in_memory=True)
 TimezoneFinder.using_numba()
 
 #Season_start_date and season_end_date can take any standard format as strings.
+#Location can be an address or a city (e.g. '11 Broadway 2nd Floor, New York, NY 10004' or 'Nairobi')
 class RainData:
 
     def __init__(self, season_start_date, season_end_date,

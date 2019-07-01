@@ -15,7 +15,7 @@ Can take a list of seasons as the season argument
 
 
 Notes on RainData:
-Capable of taking in any location and time and automatically returning data with the correct timezone and day light savings modifications
+Exists in two iterations: a basic one, and an improved version capable of taking in any location and time and automatically returning data with the correct timezone and day light savings modifications
 
 Notes on MongoHandler:
 Prevents user from accessing graphs within a jupyter notebook to avoid compatibility issues 
